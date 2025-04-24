@@ -1,5 +1,7 @@
 using Ecommerce.API.Data;
+using Ecommerce.API.Repositories;
 using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,27 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowFrontend",
+//        builder => builder.WithOrigins("https://localhost:5001")
+//                         .AllowAnyMethod()
+//                         .AllowAnyHeader());
+//});
+
 
 var app = builder.Build();
 
@@ -25,6 +48,13 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+
+
+app.UseCors("AllowAllOrigins");
+
 app.MapControllers();
+
+
+
 
 app.Run();

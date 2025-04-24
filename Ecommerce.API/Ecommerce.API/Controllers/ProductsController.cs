@@ -3,6 +3,7 @@ using Ecommerce.API.Models.DTOs.Product;
 using Ecommerce.API.Models.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.API.Controllers
 {

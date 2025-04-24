@@ -1,0 +1,34 @@
+﻿@* Views/Products/Index.cshtml *@
+@model List<Ecommerce.WEB.Models.Product>
+
+@{
+    ViewData["Title"] = "Our Products";
+}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Our Products</h1>
+
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: contain;">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text">@product.Description</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-success fw-bold">@product.Price.ToString("C")</span>
+                            <span class="text-muted">Stock: @product.StockQuantity</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <small class="text-muted">
+                            Last updated: @product.UpdatedAt.ToString("MMM dd, yyyy")
+                        </small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
