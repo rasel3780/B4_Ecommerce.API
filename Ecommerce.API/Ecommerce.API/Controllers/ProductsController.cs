@@ -1,6 +1,7 @@
 ﻿using Ecommerce.API.Data;
 using Ecommerce.API.Models.DTOs.Product;
 using Ecommerce.API.Models.Entities;
+using Ecommerce.API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,30 +12,41 @@ namespace Ecommerce.API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly EcommerceDbContext _context;
-        public ProductsController(EcommerceDbContext context)
+        private readonly IProductRepository _productRepo;
+        public ProductsController(IProductRepository productRepo)
         {
-            _context = context;
+            _productRepo = productRepo;
         }
 
         //localhost/api/product/{id}
         [HttpGet]
         [Route("{id:int}")]
-        public IActionResult GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            //var product = _context.Products.Find(id);
-            var product = _context.Products.FirstOrDefault(x => x.Id == id);
-            if(product == null)
+            var product = await _productRepo.GetByIdAsync(id);
+            if (product == null)
             {
                 return NotFound();
             }
-            return Ok(product);
+            var dto = new ProductReadDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                StockQuantity = product.StockQuantity,
+                ImageUrl = product.ImageUrl,
+                CreatedAt = product.CreatedAt,
+                UpdatedAt = product.UpdatedAt ?? product.CreatedAt
+            };
+
+            return Ok(dto);
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var products = _context.Products.ToList();
+            var products = await _productRepo.GetAllAsync();
 
             var productDto = new List<ProductReadDto>();
             foreach (var product in products)
@@ -56,7 +68,7 @@ namespace Ecommerce.API.Controllers
 
 
         [HttpPost]
-        public IActionResult CreateProduct([FromBody] ProductCreateDto productDto)
+        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productDto)
         {
             var product = new Product
             {
@@ -67,46 +79,44 @@ namespace Ecommerce.API.Controllers
                 ImageUrl = productDto.ImageUrl,
                 CreatedAt = DateTime.Now,
             };
-            
-            _context.Products.Add(product);
-            _context.SaveChanges();
-            return Ok(product);
 
-            
+            var createdProduct = await _productRepo.CreateAsync(product);
+
+            return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
         }
 
         [HttpPut]
         [Route("{id:int}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] ProductUpdateDto productDto)
+        public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductUpdateDto productDto)
         {
-            var product = _context.Products.FirstOrDefault(x=>x.Id==id);
-            if(product == null)
+            var product = new Product
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Price = productDto.Price,
+                StockQuantity = productDto.StockQuantity,
+                ImageUrl = productDto.ImageUrl
+            };
+
+            var updatedProduct = await _productRepo.Update(id, product);
+            if (updatedProduct == null)
             {
                 return NotFound();
             }
-            product.Name = productDto.Name;
-            product.Description = productDto.Description;
-            product.Price = productDto.Price;
-            product.StockQuantity = productDto.StockQuantity;
-            product.ImageUrl = productDto.ImageUrl;
-            product.UpdatedAt = DateTime.Now;
 
-            _context.SaveChanges();
-            return Ok(productDto);
+            return Ok(updatedProduct);
         }
 
         [HttpDelete]
         [Route("{id:int}")]
-        public IActionResult Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var product = _context.Products.FirstOrDefault(x => x.Id==id);
-            if (product==null)
+            var deleted = await _productRepo.DeleteAsync(id);
+            if (!deleted)
             {
                 return NotFound();
             }
-            _context.Products.Remove(product);
-            _context.SaveChanges();
-            return Ok();
+            return Ok(new {Message = "deleted" });
         }
 
     }

@@ -49,7 +49,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 
-
 app.UseCors("AllowAllOrigins");
 
 app.MapControllers();

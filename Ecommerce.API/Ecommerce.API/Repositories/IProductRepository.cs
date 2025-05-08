@@ -8,6 +8,7 @@ namespace Ecommerce.API.Repositories
         Task<Product?> GetByIdAsync(int id);
         Task<Product> CreateAsync(Product product);
         Task<Product> Update(int id, Product product);
+        Task<bool> DeleteAsync(int id);
 
 
     }

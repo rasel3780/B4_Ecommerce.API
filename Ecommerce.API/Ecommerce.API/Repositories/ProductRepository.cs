@@ -18,7 +18,7 @@ namespace Ecommerce.API.Repositories
             return product;
         }
 
-        public async Task<List<Models.Entities.Product>> GetAllAsync()
+        public async Task<List<Product>> GetAllAsync()
         {
             return await _context.Products.ToListAsync();
         }
@@ -28,9 +28,33 @@ namespace Ecommerce.API.Repositories
             return await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public Task<Product> Update(int id, Product product)
+        public async Task<Product> Update(int id, Product product)
         {
-            throw new NotImplementedException();
+            var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (existingProduct == null)
+            {
+                return null; 
+            }
+
+            existingProduct.Name = product.Name;
+            existingProduct.Description = product.Description;
+            existingProduct.Price = product.Price;
+            existingProduct.StockQuantity = product.StockQuantity;
+            existingProduct.ImageUrl = product.ImageUrl;
+            existingProduct.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return existingProduct;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product == null) return false;
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
