@@ -1,15 +1,19 @@
-﻿namespace Ecommerce.API.Models.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Ecommerce.API.Models.Entities
 {
     public class User
     {
+        [Key]
         public int Id { get; set; }
-        public string Username { get; set; }
+        [Required, EmailAddress]
         public string Email { get; set; }
-        public string PasswordHash { get; set; }
+        [Required]
+        public string Password { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Relationships
-        public ICollection<Order> Orders { get; set; }
         public Cart Cart { get; set; }
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

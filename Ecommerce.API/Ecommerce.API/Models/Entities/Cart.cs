@@ -6,11 +6,9 @@
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
-        // Foreign key
-        public int UserId { get; set; }
-
         // Relationships
+        public int UserId { get; set; }
         public User User { get; set; }
-        public ICollection<CartItem> CartItems { get; set; }
+        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
 }

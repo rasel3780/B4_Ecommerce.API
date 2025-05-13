@@ -1,4 +1,5 @@
 ﻿using Ecommerce.API.Data;
+using Ecommerce.API.Models.DTOs.Category;
 using Ecommerce.API.Models.DTOs.Product;
 using Ecommerce.API.Models.Entities;
 using Ecommerce.API.Repositories;
@@ -60,7 +61,8 @@ namespace Ecommerce.API.Controllers
                     ImageUrl = product.ImageUrl,
                     CreatedAt = product.CreatedAt,
                     UpdatedAt = product.UpdatedAt ?? product.CreatedAt,
-                    StockQuantity = product.StockQuantity
+                    StockQuantity = product.StockQuantity,
+                    
                 });
             }
             return Ok(productDto);
@@ -68,7 +70,7 @@ namespace Ecommerce.API.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productDto)
+        public async Task<IActionResult> CreateProduct([FromBody] ProductWriteDto productDto)
         {
             var product = new Product
             {
@@ -79,15 +81,18 @@ namespace Ecommerce.API.Controllers
                 ImageUrl = productDto.ImageUrl,
                 CreatedAt = DateTime.Now,
             };
+            
+            
 
             var createdProduct = await _productRepo.CreateAsync(product);
 
-            return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
+            return Ok();
+           
         }
 
         [HttpPut]
         [Route("{id:int}")]
-        public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductUpdateDto productDto)
+        public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductWriteDto productDto)
         {
             var product = new Product
             {
